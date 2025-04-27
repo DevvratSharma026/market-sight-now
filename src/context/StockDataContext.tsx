@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface Stock {
@@ -53,60 +52,92 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     bearishProbability: 35,
     predictedPrice: '184.36',
   });
-  
-  // Search for a stock by symbol
+
+  const mockStocks: Record<string, Stock> = {
+    'AAPL': {
+      symbol: 'AAPL',
+      name: 'Apple Inc.',
+      price: '178.72',
+      change: '+1.24',
+      changePercent: '+0.70%',
+    },
+    'MSFT': {
+      symbol: 'MSFT',
+      name: 'Microsoft Corporation',
+      price: '425.22',
+      change: '+6.45',
+      changePercent: '+1.56%',
+    },
+    'GOOGL': {
+      symbol: 'GOOGL',
+      name: 'Alphabet Inc.',
+      price: '164.36',
+      change: '-2.15',
+      changePercent: '-1.29%',
+    },
+    'AMZN': {
+      symbol: 'AMZN',
+      name: 'Amazon.com Inc.',
+      price: '182.41',
+      change: '-2.83',
+      changePercent: '-1.53%',
+    },
+    'NVDA': {
+      symbol: 'NVDA',
+      name: 'NVIDIA Corporation',
+      price: '925.17',
+      change: '+30.65',
+      changePercent: '+3.42%',
+    },
+    'META': {
+      symbol: 'META',
+      name: 'Meta Platforms Inc.',
+      price: '472.24',
+      change: '-2.35',
+      changePercent: '-1.89%',
+    },
+    'TSLA': {
+      symbol: 'TSLA',
+      name: 'Tesla Inc.',
+      price: '172.63',
+      change: '+2.45',
+      changePercent: '+1.44%',
+    },
+    'AMD': {
+      symbol: 'AMD',
+      name: 'Advanced Micro Devices',
+      price: '164.82',
+      change: '+2.78',
+      changePercent: '+1.71%',
+    },
+  };
+
   const searchStock = (symbol: string) => {
-    // In a real app, this would make an API call to fetch stock data
-    console.log(`Searching for stock: ${symbol}`);
-    
-    // Simulating API response with mock data based on the symbol
-    const mockStocks: Record<string, Stock> = {
-      'AAPL': {
-        symbol: 'AAPL',
-        name: 'Apple Inc.',
-        price: '178.72',
-        change: '+1.24',
-        changePercent: '+0.70%',
-      },
-      'MSFT': {
-        symbol: 'MSFT',
-        name: 'Microsoft Corporation',
-        price: '425.22',
-        change: '+6.45',
-        changePercent: '+1.56%',
-      },
-      'GOOGL': {
-        symbol: 'GOOGL',
-        name: 'Alphabet Inc.',
-        price: '164.36',
-        change: '-2.15',
-        changePercent: '-1.29%',
-      },
-      'AMZN': {
-        symbol: 'AMZN',
-        name: 'Amazon.com Inc.',
-        price: '182.41',
-        change: '-2.83',
-        changePercent: '-1.53%',
-      },
-      'NVDA': {
-        symbol: 'NVDA',
-        name: 'NVIDIA Corporation',
-        price: '925.17',
-        change: '+30.65',
-        changePercent: '+3.42%',
-      },
-    };
-    
     const upperSymbol = symbol.toUpperCase();
+    
     if (mockStocks[upperSymbol]) {
       setCurrentStock(mockStocks[upperSymbol]);
       generateChartData();
       generatePredictionData(upperSymbol);
+    } else {
+      const randomChange = (Math.random() * 10 - 5).toFixed(2);
+      const randomPrice = (100 + Math.random() * 200).toFixed(2);
+      const changePercent = ((parseFloat(randomChange) / parseFloat(randomPrice)) * 100).toFixed(2);
+      
+      const newStock: Stock = {
+        symbol: upperSymbol,
+        name: `${upperSymbol} Stock`,
+        price: randomPrice,
+        change: randomChange,
+        changePercent: `${changePercent}%`,
+      };
+      
+      setCurrentStock(newStock);
+      generateChartData();
+      generatePredictionData(upperSymbol);
     }
   };
-  
-  // Generate mock chart data
+
   const generateChartData = () => {
     const mockData: ChartDataPoint[] = [];
     const today = new Date();
@@ -116,7 +147,6 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const time = new Date(today);
       time.setHours(9 + Math.floor(i / 2), (i % 2) * 30);
       
-      // Add some randomness to create realistic price movements
       basePrice += (Math.random() - 0.48) * 2;
       
       mockData.push({
@@ -127,8 +157,7 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     
     setChartData(mockData);
   };
-  
-  // Generate mock prediction data
+
   const generatePredictionData = (symbol: string) => {
     const bullish = Math.round(35 + Math.random() * 40);
     const bearish = 100 - bullish;
@@ -143,12 +172,11 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       predictedPrice,
     });
   };
-  
-  // Generate initial data
+
   useEffect(() => {
     generateChartData();
   }, []);
-  
+
   return (
     <StockDataContext.Provider value={{ 
       currentStock, 
