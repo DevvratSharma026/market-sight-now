@@ -67,22 +67,42 @@ const MainDashboard = () => {
             </CardContent>
           </Card>
           
-          <PredictionCard />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <PredictionCard />
+            <Card>
+              <CardHeader>
+                <CardTitle>Most Viewed Stocks</CardTitle>
+                <CardDescription>Popular stocks among users</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {[
+                    { symbol: 'TSLA', name: 'Tesla Inc', views: '25.4K' },
+                    { symbol: 'AAPL', name: 'Apple Inc', views: '22.1K' },
+                    { symbol: 'NVDA', name: 'NVIDIA Corp', views: '18.7K' },
+                    { symbol: 'AMD', name: 'Advanced Micro Devices', views: '15.2K' },
+                    { symbol: 'MSFT', name: 'Microsoft Corp', views: '14.8K' }
+                  ].map((stock) => (
+                    <div
+                      key={stock.symbol}
+                      className="flex justify-between items-center p-2 hover:bg-slate-100 rounded-md cursor-pointer dark:hover:bg-slate-800"
+                      onClick={() => searchStock(stock.symbol)}
+                    >
+                      <div>
+                        <div className="font-medium">{stock.symbol}</div>
+                        <div className="text-xs text-slate-500">{stock.name}</div>
+                      </div>
+                      <div className="text-sm text-slate-500">{stock.views} views</div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
         
-        <div className="md:col-span-4 space-y-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="movers">Top Movers</TabsTrigger>
-            </TabsList>
-            <TabsContent value="overview" className="space-y-6 mt-4">
-              <MarketOverview />
-            </TabsContent>
-            <TabsContent value="movers" className="mt-4">
-              <TopMovers />
-            </TabsContent>
-          </Tabs>
+        <div className="md:col-span-4">
+          <TopMovers />
         </div>
       </div>
     </div>
