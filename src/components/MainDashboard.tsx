@@ -1,16 +1,15 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import StockChart from './StockChart';
 import PredictionCard from './PredictionCard';
-import MarketOverview from './MarketOverview';
+import WatchlistCard from './WatchlistCard';
 import TopMovers from './TopMovers';
 import { useStockData } from '../context/StockDataContext';
+import { Star } from 'lucide-react';
 
 const MainDashboard = () => {
-  const [activeTab, setActiveTab] = useState('overview');
-  const { currentStock, searchStock } = useStockData();
+  const { currentStock, searchStock, addToWatchlist, removeFromWatchlist, isInWatchlist } = useStockData();
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -20,16 +19,29 @@ const MainDashboard = () => {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <div>
-                  <CardTitle>{currentStock.symbol || 'AAPL'}</CardTitle>
-                  <CardDescription>{currentStock.name || 'Apple Inc.'}</CardDescription>
+                  <CardTitle>{currentStock.symbol}</CardTitle>
+                  <CardDescription>{currentStock.name}</CardDescription>
                 </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold">${currentStock.price || '178.72'}</div>
-                  <div className={currentStock.change && parseFloat(currentStock.change) >= 0 
-                    ? "text-green-500" 
-                    : "text-red-500"}>
-                    {currentStock.change || '+1.24'} ({currentStock.changePercent || '+0.70%'})
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <div className="text-2xl font-bold">${currentStock.price}</div>
+                    <div className={currentStock.change.startsWith('-') 
+                      ? "text-red-500" 
+                      : "text-green-500"}>
+                      {currentStock.change} ({currentStock.changePercent})
+                    </div>
                   </div>
+                  <button
+                    onClick={() => isInWatchlist(currentStock.symbol) 
+                      ? removeFromWatchlist(currentStock.symbol)
+                      : addToWatchlist(currentStock)
+                    }
+                    className="p-2 hover:bg-slate-100 rounded-full dark:hover:bg-slate-800"
+                  >
+                    <Star 
+                      className={`h-6 w-6 ${isInWatchlist(currentStock.symbol) ? 'fill-current text-primary' : 'text-muted-foreground'}`}
+                    />
+                  </button>
                 </div>
               </div>
             </CardHeader>
@@ -69,35 +81,7 @@ const MainDashboard = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <PredictionCard />
-            <Card>
-              <CardHeader>
-                <CardTitle>Most Viewed Stocks</CardTitle>
-                <CardDescription>Popular stocks among users</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {[
-                    { symbol: 'TSLA', name: 'Tesla Inc', views: '25.4K' },
-                    { symbol: 'AAPL', name: 'Apple Inc', views: '22.1K' },
-                    { symbol: 'NVDA', name: 'NVIDIA Corp', views: '18.7K' },
-                    { symbol: 'AMD', name: 'Advanced Micro Devices', views: '15.2K' },
-                    { symbol: 'MSFT', name: 'Microsoft Corp', views: '14.8K' }
-                  ].map((stock) => (
-                    <div
-                      key={stock.symbol}
-                      className="flex justify-between items-center p-2 hover:bg-slate-100 rounded-md cursor-pointer dark:hover:bg-slate-800"
-                      onClick={() => searchStock(stock.symbol)}
-                    >
-                      <div>
-                        <div className="font-medium">{stock.symbol}</div>
-                        <div className="text-xs text-slate-500">{stock.name}</div>
-                      </div>
-                      <div className="text-sm text-slate-500">{stock.views} views</div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <WatchlistCard />
           </div>
         </div>
         

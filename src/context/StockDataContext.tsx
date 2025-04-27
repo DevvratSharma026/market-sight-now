@@ -25,6 +25,10 @@ interface StockDataContextProps {
   searchStock: (symbol: string) => void;
   chartData: ChartDataPoint[];
   predictedData: PredictedData | null;
+  watchlist: Stock[];
+  addToWatchlist: (stock: Stock) => void;
+  removeFromWatchlist: (symbol: string) => void;
+  isInWatchlist: (symbol: string) => boolean;
 }
 
 const StockDataContext = createContext<StockDataContextProps | undefined>(undefined);
@@ -112,6 +116,25 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     },
   };
 
+  const [watchlist, setWatchlist] = useState<Stock[]>([]);
+
+  const addToWatchlist = (stock: Stock) => {
+    setWatchlist(prev => {
+      if (!prev.some(s => s.symbol === stock.symbol)) {
+        return [...prev, stock];
+      }
+      return prev;
+    });
+  };
+
+  const removeFromWatchlist = (symbol: string) => {
+    setWatchlist(prev => prev.filter(stock => stock.symbol !== symbol));
+  };
+
+  const isInWatchlist = (symbol: string) => {
+    return watchlist.some(stock => stock.symbol === symbol);
+  };
+
   const searchStock = (symbol: string) => {
     const upperSymbol = symbol.toUpperCase();
     
@@ -183,7 +206,11 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setCurrentStock, 
       searchStock, 
       chartData, 
-      predictedData 
+      predictedData,
+      watchlist,
+      addToWatchlist,
+      removeFromWatchlist,
+      isInWatchlist
     }}>
       {children}
     </StockDataContext.Provider>
