@@ -10,7 +10,7 @@ import { useStockData } from '../context/StockDataContext';
 
 const MainDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  const { currentStock } = useStockData();
+  const { currentStock, searchStock } = useStockData();
 
   return (
     <div className="container mx-auto px-4 py-6">
