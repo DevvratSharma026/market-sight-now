@@ -1,15 +1,13 @@
-import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import StockChart from './StockChart';
 import PredictionCard from './PredictionCard';
-import WatchlistCard from './WatchlistCard';
 import TopMovers from './TopMovers';
 import { useStockData } from '../context/StockDataContext';
 import { Star } from 'lucide-react';
 
 const MainDashboard = () => {
-  const { currentStock, searchStock, addToWatchlist, removeFromWatchlist, isInWatchlist } = useStockData();
+  const { currentStock, addToWatchlist, removeFromWatchlist, isInWatchlist } = useStockData();
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -79,9 +77,8 @@ const MainDashboard = () => {
             </CardContent>
           </Card>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             <PredictionCard />
-            <WatchlistCard />
           </div>
         </div>
         

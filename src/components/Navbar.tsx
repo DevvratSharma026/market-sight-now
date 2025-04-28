@@ -1,9 +1,10 @@
 
 import { useState } from 'react';
-import { Search, Menu, X } from 'lucide-react';
+import { Search, Menu, X, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useStockData } from '../context/StockDataContext';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   const { searchStock } = useStockData();
@@ -19,9 +20,9 @@ const Navbar = () => {
     <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
       <div className="container flex h-16 items-center px-4 sm:px-6">
         <div className="mr-4 flex items-center">
-          <a href="/" className="flex items-center">
+          <Link to="/" className="flex items-center">
             <span className="text-xl font-bold text-blue-600 dark:text-blue-400">MarketSight</span>
-          </a>
+          </Link>
         </div>
         
         <div className="hidden md:flex flex-1 items-center justify-center">
@@ -40,14 +41,14 @@ const Navbar = () => {
         </div>
         
         <div className="flex items-center justify-end space-x-2">
-          <Button variant="ghost" size="sm" className="hidden md:flex">
-            Dashboard
+          <Button variant="ghost" size="sm" className="hidden md:flex" asChild>
+            <Link to="/dashboard">Dashboard</Link>
           </Button>
-          <Button variant="ghost" size="sm" className="hidden md:flex">
-            Watchlist
-          </Button>
-          <Button variant="ghost" size="sm" className="hidden md:flex">
-            Analytics
+          <Button variant="ghost" size="sm" className="hidden md:flex gap-2" asChild>
+            <Link to="/watchlist">
+              <List className="h-4 w-4" />
+              Watchlist
+            </Link>
           </Button>
           
           <Button 
@@ -76,9 +77,15 @@ const Navbar = () => {
             </div>
           </form>
           <div className="flex flex-col space-y-2">
-            <Button variant="ghost" size="sm">Dashboard</Button>
-            <Button variant="ghost" size="sm">Watchlist</Button>
-            <Button variant="ghost" size="sm">Analytics</Button>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/dashboard">Dashboard</Link>
+            </Button>
+            <Button variant="ghost" size="sm" className="gap-2" asChild>
+              <Link to="/watchlist">
+                <List className="h-4 w-4" />
+                Watchlist
+              </Link>
+            </Button>
           </div>
         </div>
       )}
