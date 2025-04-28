@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface Stock {
@@ -116,7 +117,11 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     },
   };
 
-  const [watchlist, setWatchlist] = useState<Stock[]>([]);
+  // Initialize watchlist with some example data if empty
+  const [watchlist, setWatchlist] = useState<Stock[]>([
+    mockStocks['AAPL'],
+    mockStocks['MSFT'],
+  ]);
 
   const addToWatchlist = (stock: Stock) => {
     setWatchlist(prev => {
