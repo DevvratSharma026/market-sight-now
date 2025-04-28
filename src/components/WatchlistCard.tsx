@@ -2,26 +2,40 @@
 import { useStockData } from '../context/StockDataContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Star } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const WatchlistCard = () => {
   const { watchlist, searchStock, removeFromWatchlist } = useStockData();
+  const { toast } = useToast();
+
+  const handleRemove = (symbol: string) => {
+    removeFromWatchlist(symbol);
+    toast({
+      title: "Stock removed",
+      description: `${symbol} has been removed from your watchlist.`,
+    });
+  };
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Star className="h-5 w-5" /> Watchlist
+          <Star className="h-5 w-5 fill-yellow-400 stroke-yellow-500" /> My Watchlist
         </CardTitle>
       </CardHeader>
       <CardContent>
         {watchlist.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No stocks in watchlist</p>
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <Star className="h-12 w-12 text-slate-300 mb-2" />
+            <p className="text-lg font-medium text-slate-700 dark:text-slate-300">Your watchlist is empty</p>
+            <p className="text-sm text-muted-foreground">Search for stocks and add them to your watchlist</p>
+          </div>
         ) : (
           <div className="space-y-4">
             {watchlist.map((stock) => (
               <div
                 key={stock.symbol}
-                className="flex items-center justify-between p-2 hover:bg-slate-100 rounded-md dark:hover:bg-slate-800"
+                className="flex items-center justify-between p-3 hover:bg-slate-100 rounded-md dark:hover:bg-slate-800 transition-colors"
               >
                 <div 
                   className="cursor-pointer flex-grow"
@@ -31,14 +45,18 @@ const WatchlistCard = () => {
                   <div className="text-xs text-slate-500">{stock.name}</div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className={stock.change.startsWith('-') ? 'text-red-500' : 'text-green-500'}>
-                    {stock.change} ({stock.changePercent})
+                  <div className={`font-medium ${stock.change.startsWith('-') ? 'text-red-500' : 'text-green-500'}`}>
+                    <div>{stock.price}</div>
+                    <div className="text-xs">
+                      {stock.change} ({stock.changePercent})
+                    </div>
                   </div>
                   <button
-                    onClick={() => removeFromWatchlist(stock.symbol)}
-                    className="text-muted-foreground hover:text-primary"
+                    onClick={() => handleRemove(stock.symbol)}
+                    className="text-muted-foreground hover:text-red-500 transition-colors"
+                    aria-label="Remove from watchlist"
                   >
-                    <Star className="h-4 w-4 fill-current" />
+                    <Star className="h-5 w-5 fill-current" />
                   </button>
                 </div>
               </div>
