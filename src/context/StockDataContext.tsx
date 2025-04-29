@@ -83,11 +83,15 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
         
         if (data) {
-          // Transform decimal values to strings
-          const formattedData = data.map(stock => ({
-            ...stock,
+          // Transform data to match our Stock interface
+          const formattedData: Stock[] = data.map(stock => ({
+            id: stock.id,
+            symbol: stock.symbol,
+            name: stock.name,
             price: stock.price.toString(),
-            change: stock.change.toString()
+            change: stock.change.toString(),
+            changePercent: stock.change_percent,
+            last_updated: stock.last_updated
           }));
           
           setStocks(formattedData);
@@ -121,16 +125,25 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         (payload) => {
           console.log('Real-time update:', payload);
           
+          if (!payload.new || typeof payload.new !== 'object') {
+            console.error('Invalid payload received:', payload);
+            return;
+          }
+          
           // Update the stocks array with the new data
           setStocks(prevStocks => {
             const updatedStocks = [...prevStocks];
             const index = updatedStocks.findIndex(s => s.id === payload.new.id);
             
-            // Format the new stock data
-            const formattedStock = {
-              ...payload.new,
+            // Format the new stock data to match our interface
+            const formattedStock: Stock = {
+              id: payload.new.id,
+              symbol: payload.new.symbol,
+              name: payload.new.name,
               price: payload.new.price.toString(),
-              change: payload.new.change.toString()
+              change: payload.new.change.toString(),
+              changePercent: payload.new.change_percent,
+              last_updated: payload.new.last_updated
             };
             
             if (index >= 0) {
