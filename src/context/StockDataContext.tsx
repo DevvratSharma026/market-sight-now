@@ -1,30 +1,11 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { Stock, ChartDataPoint, PredictedData } from '@/types/stock';
+import { useWatchlist } from '@/hooks/useWatchlist';
+import { generateChartData, generatePredictionData } from '@/utils/stockDataUtils';
 
-interface Stock {
-  id?: string;
-  symbol: string;
-  name: string;
-  price: string;
-  change: string;
-  changePercent: string;
-  last_updated?: string;
-}
-
-interface PredictedData {
-  bullishProbability: number;
-  bearishProbability: number;
-  predictedPrice: string;
-}
-
-interface ChartDataPoint {
-  time: string;
-  price: number;
-}
-
-interface StockDataContextProps {
+export interface StockDataContextProps {
   currentStock: Stock;
   setCurrentStock: React.Dispatch<React.SetStateAction<Stock>>;
   searchStock: (symbol: string) => void;
@@ -37,15 +18,7 @@ interface StockDataContextProps {
   stocks: Stock[];
 }
 
-const StockDataContext = createContext<StockDataContextProps | undefined>(undefined);
-
-export const useStockData = () => {
-  const context = useContext(StockDataContext);
-  if (!context) {
-    throw new Error('useStockData must be used within a StockDataProvider');
-  }
-  return context;
-};
+export const StockDataContext = createContext<StockDataContextProps | undefined>(undefined);
 
 export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [stocks, setStocks] = useState<Stock[]>([]);
@@ -64,11 +37,8 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     predictedPrice: '184.36',
   });
 
-  // Initialize watchlist from localStorage or empty array
-  const [watchlist, setWatchlist] = useState<Stock[]>(() => {
-    const savedWatchlist = localStorage.getItem('stockWatchlist');
-    return savedWatchlist ? JSON.parse(savedWatchlist) : [];
-  });
+  // Use the watchlist custom hook
+  const { watchlist, addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist();
 
   // Load stock data from Supabase
   useEffect(() => {
@@ -101,7 +71,7 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             const defaultStock = formattedData.find(s => s.symbol === currentStock.symbol);
             if (defaultStock) {
               setCurrentStock(defaultStock);
-              generateChartData(defaultStock.price);
+              setChartData(generateChartData(defaultStock.price));
             }
           }
         }
@@ -130,29 +100,31 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             return;
           }
           
+          const payloadNew = payload.new as any;
+          
           // Update the stocks array with the new data
           setStocks(prevStocks => {
             const updatedStocks = [...prevStocks];
-            const index = updatedStocks.findIndex(s => s.id === payload.new.id);
+            const index = updatedStocks.findIndex(s => s.id === payloadNew.id);
             
             // Format the new stock data to match our interface
             const formattedStock: Stock = {
-              id: payload.new.id,
-              symbol: payload.new.symbol,
-              name: payload.new.name,
-              price: payload.new.price.toString(),
-              change: payload.new.change.toString(),
-              changePercent: payload.new.change_percent,
-              last_updated: payload.new.last_updated
+              id: payloadNew.id,
+              symbol: payloadNew.symbol,
+              name: payloadNew.name,
+              price: payloadNew.price.toString(),
+              change: payloadNew.change.toString(),
+              changePercent: payloadNew.change_percent,
+              last_updated: payloadNew.last_updated
             };
             
             if (index >= 0) {
               updatedStocks[index] = formattedStock;
               
               // Update current stock if it's the one that changed
-              if (currentStock.id === payload.new.id) {
+              if (currentStock.id === payloadNew.id) {
                 setCurrentStock(formattedStock);
-                generateChartData(formattedStock.price);
+                setChartData(generateChartData(formattedStock.price));
               }
             } else {
               updatedStocks.push(formattedStock);
@@ -170,32 +142,6 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, [currentStock.symbol]);
 
-  // Save watchlist to localStorage when it changes
-  useEffect(() => {
-    localStorage.setItem('stockWatchlist', JSON.stringify(watchlist));
-  }, [watchlist]);
-
-  const addToWatchlist = (stock: Stock) => {
-    setWatchlist(prev => {
-      if (!prev.some(s => s.symbol === stock.symbol)) {
-        toast({
-          title: "Added to Watchlist",
-          description: `${stock.symbol} has been added to your watchlist.`,
-        });
-        return [...prev, stock];
-      }
-      return prev;
-    });
-  };
-
-  const removeFromWatchlist = (symbol: string) => {
-    setWatchlist(prev => prev.filter(stock => stock.symbol !== symbol));
-  };
-
-  const isInWatchlist = (symbol: string) => {
-    return watchlist.some(stock => stock.symbol === symbol);
-  };
-
   const searchStock = (symbol: string) => {
     const upperSymbol = symbol.toUpperCase();
     
@@ -204,8 +150,8 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     
     if (foundStock) {
       setCurrentStock(foundStock);
-      generateChartData(foundStock.price);
-      generatePredictionData(upperSymbol);
+      setChartData(generateChartData(foundStock.price));
+      setPredictedData(generatePredictionData(upperSymbol, foundStock.price));
     } else {
       // Fallback to mock data if not found in DB
       const randomChange = (Math.random() * 10 - 5).toFixed(2);
@@ -221,44 +167,9 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       };
       
       setCurrentStock(newStock);
-      generateChartData(newStock.price);
-      generatePredictionData(upperSymbol);
+      setChartData(generateChartData(newStock.price));
+      setPredictedData(generatePredictionData(upperSymbol, newStock.price));
     }
-  };
-
-  const generateChartData = (basePrice: string) => {
-    const mockData: ChartDataPoint[] = [];
-    const today = new Date();
-    let price = parseFloat(basePrice);
-    
-    for (let i = 0; i < 24; i++) {
-      const time = new Date(today);
-      time.setHours(9 + Math.floor(i / 2), (i % 2) * 30);
-      
-      price += (Math.random() - 0.48) * 2;
-      
-      mockData.push({
-        time: `${time.getHours()}:${time.getMinutes().toString().padStart(2, '0')}`,
-        price: Number(price.toFixed(2)),
-      });
-    }
-    
-    setChartData(mockData);
-  };
-
-  const generatePredictionData = (symbol: string) => {
-    const bullish = Math.round(35 + Math.random() * 40);
-    const bearish = 100 - bullish;
-    
-    const currentPrice = parseFloat(currentStock.price);
-    const predictedChange = (Math.random() * 10) - 3;
-    const predictedPrice = (currentPrice + predictedChange).toFixed(2);
-    
-    setPredictedData({
-      bullishProbability: bullish,
-      bearishProbability: bearish,
-      predictedPrice,
-    });
   };
 
   return (
