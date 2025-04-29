@@ -47,12 +47,19 @@ const WatchlistCard = () => {
                   className="cursor-pointer flex-grow"
                   onClick={() => searchStock(stock.symbol)}
                 >
-                  <div className="font-medium">{stock.symbol}</div>
+                  <div className="font-medium">
+                    {stock.symbol}
+                    {stock.market && (
+                      <span className="ml-2 text-xs text-slate-500">
+                        ({stock.market})
+                      </span>
+                    )}
+                  </div>
                   <div className="text-xs text-slate-500">{stock.name}</div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className={`font-medium ${parseFloat(stock.change) < 0 ? 'text-red-500' : 'text-green-500'}`}>
-                    <div>${stock.price}</div>
+                    <div>{stock.currency || '$'}{stock.price}</div>
                     <div className="text-xs">
                       {stock.change} ({stock.changePercent})
                     </div>

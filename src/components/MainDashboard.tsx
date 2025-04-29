@@ -19,11 +19,20 @@ const MainDashboard = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <CardTitle>{currentStock.symbol}</CardTitle>
-                  <CardDescription>{currentStock.name}</CardDescription>
+                  <CardDescription>
+                    {currentStock.name}
+                    {currentStock.market && (
+                      <span className="ml-2 px-2 py-1 bg-slate-100 text-xs rounded dark:bg-slate-800">
+                        {currentStock.market}
+                      </span>
+                    )}
+                  </CardDescription>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <div className="text-2xl font-bold">${currentStock.price}</div>
+                    <div className="text-2xl font-bold">
+                      {currentStock.currency || '$'}{currentStock.price}
+                    </div>
                     <div className={currentStock.change.startsWith('-') 
                       ? "text-red-500" 
                       : "text-green-500"}>

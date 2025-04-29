@@ -5,91 +5,87 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useStockData } from '@/hooks/useStockData';
 import { Link } from 'react-router-dom';
+import GlobalStockSearch from './GlobalStockSearch';
 
 const Navbar = () => {
-  const { searchStock } = useStockData();
+  const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { searchStock } = useStockData();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    searchStock(searchQuery);
+    if (searchQuery.trim()) {
+      searchStock(searchQuery);
+      setSearchQuery('');
+    }
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
-      <div className="container flex h-16 items-center px-4 sm:px-6">
-        <div className="mr-4 flex items-center">
-          <Link to="/" className="flex items-center">
-            <span className="text-xl font-bold text-blue-600 dark:text-blue-400">MarketSight</span>
-          </Link>
-        </div>
-        
-        <div className="hidden md:flex flex-1 items-center justify-center">
-          <form onSubmit={handleSearch} className="w-full max-w-sm">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-500" />
-              <Input
-                type="search"
-                placeholder="Search for a stock symbol..."
-                className="w-full bg-slate-50 pl-8 dark:bg-slate-800"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+    <nav className="bg-white shadow-sm border-b dark:bg-slate-950 dark:border-slate-800">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <Link to="/dashboard" className="text-xl font-bold text-primary mr-6">StockWatch</Link>
+            <div className="hidden md:flex space-x-4">
+              <Link to="/dashboard" className="text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary">Dashboard</Link>
+              <Link to="/watchlist" className="text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary">Watchlist</Link>
             </div>
-          </form>
-        </div>
-        
-        <div className="flex items-center justify-end space-x-2">
-          <Button variant="ghost" size="sm" className="hidden md:flex" asChild>
-            <Link to="/dashboard">Dashboard</Link>
-          </Button>
-          <Button variant="ghost" size="sm" className="hidden md:flex gap-2" asChild>
-            <Link to="/watchlist">
-              <List className="h-4 w-4" />
-              Watchlist
-            </Link>
-          </Button>
-          
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="md:hidden" 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-        </div>
-      </div>
-      
-      {isMenuOpen && (
-        <div className="md:hidden p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-          <form onSubmit={handleSearch} className="mb-4">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-500" />
-              <Input
-                type="search"
-                placeholder="Search for a stock symbol..."
-                className="w-full bg-slate-50 pl-8 dark:bg-slate-800"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </form>
-          <div className="flex flex-col space-y-2">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/dashboard">Dashboard</Link>
-            </Button>
-            <Button variant="ghost" size="sm" className="gap-2" asChild>
-              <Link to="/watchlist">
-                <List className="h-4 w-4" />
-                Watchlist
-              </Link>
-            </Button>
+          </div>
+
+          <div className="hidden md:flex flex-1 mx-4 max-w-2xl">
+            <GlobalStockSearch />
+          </div>
+
+          <div className="flex md:hidden">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-slate-600 dark:text-slate-300"
+              aria-label="Toggle menu"
+            >
+              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
         </div>
-      )}
-    </header>
+
+        {/* Mobile Menu */}
+        {isOpen && (
+          <div className="md:hidden mt-3 pb-3">
+            <form onSubmit={handleSearch} className="mb-3">
+              <div className="flex items-center">
+                <div className="relative flex-grow">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search stock symbol..."
+                    className="pl-8"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <Button type="submit" size="sm" className="ml-2">
+                  Search
+                </Button>
+              </div>
+            </form>
+            <div className="space-y-2">
+              <Link 
+                to="/dashboard" 
+                onClick={() => setIsOpen(false)}
+                className="block py-2 px-3 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
+              >
+                Dashboard
+              </Link>
+              <Link 
+                to="/watchlist" 
+                onClick={() => setIsOpen(false)}
+                className="block py-2 px-3 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
+              >
+                Watchlist
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+    </nav>
   );
 };
 

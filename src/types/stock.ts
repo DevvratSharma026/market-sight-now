@@ -6,6 +6,8 @@ export interface Stock {
   price: string;
   change: string;
   changePercent: string;
+  market?: string;
+  currency?: string;
   last_updated?: string;
 }
 
