@@ -5,8 +5,14 @@ import { Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const WatchlistCard = () => {
-  const { watchlist, searchStock, removeFromWatchlist } = useStockData();
+  const { watchlist, searchStock, removeFromWatchlist, stocks } = useStockData();
   const { toast } = useToast();
+
+  // Update watchlist with latest stock data
+  const updatedWatchlist = watchlist.map(watchItem => {
+    const latestData = stocks.find(s => s.symbol === watchItem.symbol);
+    return latestData ? latestData : watchItem;
+  });
 
   const handleRemove = (symbol: string) => {
     removeFromWatchlist(symbol);
@@ -24,7 +30,7 @@ const WatchlistCard = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {watchlist.length === 0 ? (
+        {updatedWatchlist.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 text-center">
             <Star className="h-12 w-12 text-slate-300 mb-2" />
             <p className="text-lg font-medium text-slate-700 dark:text-slate-300">Your watchlist is empty</p>
@@ -32,7 +38,7 @@ const WatchlistCard = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {watchlist.map((stock) => (
+            {updatedWatchlist.map((stock) => (
               <div
                 key={stock.symbol}
                 className="flex items-center justify-between p-3 hover:bg-slate-100 rounded-md dark:hover:bg-slate-800 transition-colors"
@@ -45,8 +51,8 @@ const WatchlistCard = () => {
                   <div className="text-xs text-slate-500">{stock.name}</div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className={`font-medium ${stock.change.startsWith('-') ? 'text-red-500' : 'text-green-500'}`}>
-                    <div>{stock.price}</div>
+                  <div className={`font-medium ${parseFloat(stock.change) < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                    <div>${stock.price}</div>
                     <div className="text-xs">
                       {stock.change} ({stock.changePercent})
                     </div>

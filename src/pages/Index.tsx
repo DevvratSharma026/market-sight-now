@@ -1,8 +1,8 @@
 
-import { useState, useEffect } from 'react';
 import MainDashboard from '../components/MainDashboard';
 import Navbar from '../components/Navbar';
 import { StockDataProvider } from '../context/StockDataContext';
+import StockUpdater from '../components/StockUpdater';
 import '../App.css';
 
 const Index = () => {
@@ -11,6 +11,7 @@ const Index = () => {
       <StockDataProvider>
         <Navbar />
         <MainDashboard />
+        <StockUpdater />
       </StockDataProvider>
     </div>
   );

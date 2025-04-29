@@ -2,6 +2,7 @@
 import { StockDataProvider } from '../context/StockDataContext';
 import Navbar from '../components/Navbar';
 import WatchlistCard from '../components/WatchlistCard';
+import StockUpdater from '../components/StockUpdater';
 
 const Watchlist = () => {
   return (
@@ -14,6 +15,7 @@ const Watchlist = () => {
             <WatchlistCard />
           </div>
         </div>
+        <StockUpdater />
       </StockDataProvider>
     </div>
   );
