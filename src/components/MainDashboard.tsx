@@ -1,9 +1,10 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import StockChart from './StockChart';
 import PredictionCard from './PredictionCard';
 import TopMovers from './TopMovers';
-import { useStockData } from '../context/StockDataContext';
+import { useStockData } from '@/hooks/useStockData';
 import { Star } from 'lucide-react';
 
 const MainDashboard = () => {

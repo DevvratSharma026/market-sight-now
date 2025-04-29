@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Search, Menu, X, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useStockData } from '../context/StockDataContext';
+import { useStockData } from '@/hooks/useStockData';
 import { Link } from 'react-router-dom';
 
 const Navbar = () => {

@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ArrowUp, ArrowDown } from 'lucide-react';
-import { useStockData } from '../context/StockDataContext';
+import { useStockData } from '@/hooks/useStockData';
 
 const PredictionCard = () => {
   const { currentStock, predictedData } = useStockData();

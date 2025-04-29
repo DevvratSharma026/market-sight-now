@@ -1,5 +1,5 @@
 
-import { useStockData } from '../context/StockDataContext';
+import { useStockData } from '@/hooks/useStockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';

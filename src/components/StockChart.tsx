@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useStockData } from '../context/StockDataContext';
+import { useStockData } from '@/hooks/useStockData';
 
 interface StockChartProps {
   timeframe: string;
