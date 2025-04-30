@@ -17,6 +17,22 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
     const supabase = createClient(supabaseUrl, supabaseKey);
     
+    // Get Alpha Vantage API key from environment variables
+    const ALPHA_VANTAGE_API_KEY = Deno.env.get("ALPHA_VANTAGE_API_KEY");
+    
+    if (!ALPHA_VANTAGE_API_KEY) {
+      console.error("Missing Alpha Vantage API key in environment variables");
+      return new Response(JSON.stringify({ 
+        error: "Missing Alpha Vantage API key configuration", 
+        details: "The ALPHA_VANTAGE_API_KEY environment variable is not set."
+      }), {
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    console.log(`Alpha Vantage API Key found: ${ALPHA_VANTAGE_API_KEY.substring(0, 3)}...`);
+    
     const { data: requestData } = await req.json().catch(() => ({ data: {} }));
     const symbol = requestData?.symbol;
     
@@ -26,7 +42,7 @@ serve(async (req) => {
     if (symbol) {
       try {
         console.log(`Attempting to fetch data for specific symbol: ${symbol}`);
-        const stockData = await fetchStockData(symbol);
+        const stockData = await fetchStockData(symbol, ALPHA_VANTAGE_API_KEY);
         if (stockData) {
           console.log(`Successfully fetched data for ${symbol}:`, stockData);
           await updateStockInDatabase(supabase, stockData);
@@ -61,7 +77,7 @@ serve(async (req) => {
     for (const stock of stocks) {
       try {
         console.log(`Attempting to fetch real data for ${stock.symbol}`);
-        const stockData = await fetchStockData(stock.symbol);
+        const stockData = await fetchStockData(stock.symbol, ALPHA_VANTAGE_API_KEY);
         if (stockData) {
           console.log(`Successfully fetched real data for ${stock.symbol}`);
           await updateStockInDatabase(supabase, stockData);
@@ -109,20 +125,18 @@ serve(async (req) => {
   }
 });
 
-async function fetchStockData(symbol: string) {
+async function fetchStockData(symbol: string, apiKey: string) {
   try {
-    // Use Alpha Vantage API with your API key
-    const API_KEY = Deno.env.get("ALPHA_VANTAGE_API_KEY");
-    
-    if (!API_KEY) {
+    // Use Alpha Vantage API with the provided API key
+    if (!apiKey) {
       console.warn("Missing Alpha Vantage API key, cannot fetch real data");
       return null;
     }
     
-    console.log(`Fetching stock data from Alpha Vantage for ${symbol} with API key: ${API_KEY.substring(0, 3)}...`);
+    console.log(`Fetching stock data from Alpha Vantage for ${symbol} with API key: ${apiKey.substring(0, 3)}...`);
     
     const response = await fetch(
-      `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${API_KEY}`
+      `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`
     );
     
     if (!response.ok) {
@@ -180,8 +194,6 @@ async function updateStockInDatabase(supabase, stockData) {
           price: stockData.price,
           change: stockData.change,
           change_percent: stockData.change_percent,
-          market: stockData.market,
-          currency: stockData.currency,
           last_updated: new Date().toISOString()
         })
         .eq('id', existingStock.id);
@@ -200,8 +212,6 @@ async function updateStockInDatabase(supabase, stockData) {
           price: stockData.price,
           change: stockData.change,
           change_percent: stockData.change_percent,
-          market: stockData.market,
-          currency: stockData.currency,
           last_updated: new Date().toISOString()
         });
       

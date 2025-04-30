@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const StockUpdater = () => {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [apiKeyError, setApiKeyError] = useState<boolean>(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -14,12 +15,40 @@ const StockUpdater = () => {
         const response = await supabase.functions.invoke('update-stock-prices');
         
         if (response.error) {
-          throw new Error(response.error.message);
+          // Check if it's an API key error
+          if (response.error.message && response.error.message.includes('Alpha Vantage API key')) {
+            if (!apiKeyError) {
+              setApiKeyError(true);
+              toast({
+                title: "API Key Error",
+                description: "Alpha Vantage API key is missing or invalid. Check Supabase Edge Function configuration.",
+                variant: "destructive"
+              });
+            }
+          } else {
+            throw new Error(response.error.message);
+          }
+          return;
+        }
+        
+        // If we had an API key error before but now it's working, clear the error
+        if (apiKeyError) {
+          setApiKeyError(false);
+          toast({
+            title: "API Key Valid",
+            description: "Alpha Vantage API key is now working correctly.",
+            variant: "default"
+          });
         }
         
         setLastUpdate(new Date());
       } catch (error) {
         console.error('Error updating stocks:', error);
+        toast({
+          title: "Stock Update Failed",
+          description: error.message || "Could not update stock prices",
+          variant: "destructive"
+        });
       }
     };
     
@@ -33,7 +62,7 @@ const StockUpdater = () => {
     
     // Clean up
     return () => clearInterval(interval);
-  }, []);
+  }, [toast, apiKeyError]);
 
   return null; // This component doesn't render anything
 };
