@@ -23,7 +23,13 @@ const GlobalStockSearch = () => {
     
     // Then try to fetch new data if not in our database
     setIsLoading(true);
+    toast({
+      title: "Searching for stock",
+      description: `Looking up ${symbol.toUpperCase()} from external API...`,
+    });
+
     try {
+      console.log(`Fetching stock data for: ${symbol.toUpperCase()}`);
       const response = await supabase.functions.invoke('update-stock-prices', {
         body: { symbol: symbol.toUpperCase() }
       });
@@ -31,6 +37,8 @@ const GlobalStockSearch = () => {
       if (response.error) {
         throw new Error(response.error.message);
       }
+      
+      console.log('Stock API response:', response);
       
       if (response.data.success) {
         // Search again to load the newly added stock

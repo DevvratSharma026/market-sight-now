@@ -21,16 +21,22 @@ serve(async (req) => {
     const { data: requestData } = await req.json().catch(() => ({ data: {} }));
     const symbol = requestData?.symbol;
     
+    console.log(`Request received, looking for symbol: ${symbol || 'all stocks'}`);
+    
     // If a specific symbol is requested, fetch just that one
     if (symbol) {
       try {
+        console.log(`Attempting to fetch data for specific symbol: ${symbol}`);
         const stockData = await fetchStockData(symbol);
         if (stockData) {
+          console.log(`Successfully fetched data for ${symbol}:`, stockData);
           await updateStockInDatabase(supabase, stockData);
           return new Response(JSON.stringify({ success: true, data: stockData }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 200,
           });
+        } else {
+          console.log(`No data returned for ${symbol}`);
         }
       } catch (error) {
         console.error(`Error fetching data for ${symbol}:`, error);
@@ -50,13 +56,19 @@ serve(async (req) => {
       throw fetchError;
     }
     
+    console.log(`Updating ${stocks.length} stocks`);
+    
     // Update each stock with a real data fetch attempt first, fall back to random changes
     for (const stock of stocks) {
       try {
+        console.log(`Attempting to fetch real data for ${stock.symbol}`);
         const stockData = await fetchStockData(stock.symbol);
         if (stockData) {
+          console.log(`Successfully fetched real data for ${stock.symbol}`);
           await updateStockInDatabase(supabase, stockData);
           continue; // Skip to next stock if successful
+        } else {
+          console.log(`No real data returned for ${stock.symbol}, using fallback`);
         }
       } catch (error) {
         console.error(`Error fetching real data for ${stock.symbol}:`, error);
@@ -64,6 +76,7 @@ serve(async (req) => {
       }
       
       // Fallback to random changes if API fetch fails
+      console.log(`Using random data for ${stock.symbol}`);
       const randomChange = (Math.random() * 2 - 1).toFixed(2);
       const newPrice = (parseFloat(stock.price) + parseFloat(randomChange)).toFixed(2);
       const changePercent = ((parseFloat(randomChange) / parseFloat(stock.price)) * 100).toFixed(2);
@@ -107,6 +120,8 @@ async function fetchStockData(symbol: string) {
       return null;
     }
     
+    console.log(`Fetching stock data from Alpha Vantage for ${symbol} with API key: ${API_KEY.substring(0, 3)}...`);
+    
     const response = await fetch(
       `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${API_KEY}`
     );
@@ -116,6 +131,7 @@ async function fetchStockData(symbol: string) {
     }
     
     const data = await response.json();
+    console.log(`Alpha Vantage response for ${symbol}:`, JSON.stringify(data).substring(0, 200) + '...');
     
     // Check if we got a valid response with price data
     if (data['Global Quote'] && data['Global Quote']['05. price']) {
