@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.32.0';
 
@@ -59,7 +60,7 @@ serve(async (req) => {
         }
       } catch (error) {
         console.error(`Error fetching real data for ${stock.symbol}:`, error);
-        // Fall back to random data
+        // Fall back to random changes
       }
       
       // Fallback to random changes if API fetch fails
@@ -98,7 +99,7 @@ serve(async (req) => {
 
 async function fetchStockData(symbol: string) {
   try {
-    // Use Alpha Vantage API (you could replace with another provider)
+    // Use Alpha Vantage API with your API key
     const API_KEY = Deno.env.get("ALPHA_VANTAGE_API_KEY");
     
     if (!API_KEY) {
