@@ -3,6 +3,7 @@ import { useStockData } from '@/hooks/useStockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { convertCurrency, formatCurrency } from '@/utils/currencyConverter';
 
 const WatchlistCard = () => {
   const { watchlist, searchStock, removeFromWatchlist, stocks } = useStockData();
@@ -59,7 +60,12 @@ const WatchlistCard = () => {
                 </div>
                 <div className="flex items-center gap-4">
                   <div className={`font-medium ${parseFloat(stock.change) < 0 ? 'text-red-500' : 'text-green-500'}`}>
-                    <div>{stock.currency || '$'}{stock.price}</div>
+                    <div>
+                      {formatCurrency(convertCurrency(parseFloat(stock.price), stock.currency || 'USD', 'INR'), 'INR')}
+                      <span className="text-xs ml-1 text-slate-500">
+                        ({stock.currency || '$'}{stock.price})
+                      </span>
+                    </div>
                     <div className="text-xs">
                       {stock.change} ({stock.changePercent})
                     </div>

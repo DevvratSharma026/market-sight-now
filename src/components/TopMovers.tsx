@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { useStockData } from '@/hooks/useStockData';
 import { useEffect, useMemo } from 'react';
+import { convertCurrency, formatCurrency } from '@/utils/currencyConverter';
 
 const TopMovers = () => {
   const { searchStock, stocks } = useStockData();
@@ -52,7 +53,12 @@ const TopMovers = () => {
                     <div className="text-xs text-slate-500">{stock.name}</div>
                   </div>
                   <div className="text-right">
-                    <div>${stock.price}</div>
+                    <div>
+                      {formatCurrency(convertCurrency(parseFloat(stock.price), stock.currency || 'USD', 'INR'), 'INR')}
+                      <span className="text-xs ml-1 text-slate-500">
+                        ({stock.currency || '$'}{stock.price})
+                      </span>
+                    </div>
                     <div className="text-green-500 text-xs">{stock.changePercent}</div>
                   </div>
                 </div>
@@ -83,7 +89,12 @@ const TopMovers = () => {
                     <div className="text-xs text-slate-500">{stock.name}</div>
                   </div>
                   <div className="text-right">
-                    <div>${stock.price}</div>
+                    <div>
+                      {formatCurrency(convertCurrency(parseFloat(stock.price), stock.currency || 'USD', 'INR'), 'INR')}
+                      <span className="text-xs ml-1 text-slate-500">
+                        ({stock.currency || '$'}{stock.price})
+                      </span>
+                    </div>
                     <div className="text-red-500 text-xs">{stock.changePercent}</div>
                   </div>
                 </div>
