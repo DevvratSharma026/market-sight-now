@@ -57,13 +57,9 @@ const StockUpdater = () => {
     // Initial update
     updateStocks();
     
-    // Update every 10 seconds
-    const interval = setInterval(() => {
-      updateStocks();
-    }, 10000);
+    // Removed the interval to stop automatic refreshing
     
-    // Clean up
-    return () => clearInterval(interval);
+    // Clean up - no interval to clear anymore
   }, [toast, apiKeyError]);
 
   return null; // This component doesn't render anything
