@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useStockData } from '@/hooks/useStockData';
 import { generateChartData } from '@/utils/stockDataUtils';
+import { convertCurrency, formatCurrency } from '@/utils/currencyConverter';
 
 interface StockChartProps {
   timeframe: string;
@@ -14,8 +15,22 @@ const StockChart = ({ timeframe }: StockChartProps) => {
   
   // Generate chart data based on timeframe
   useEffect(() => {
-    setData(generateChartData(currentStock.price, timeframe));
-  }, [timeframe, currentStock.price, currentStock.symbol]);
+    const rawData = generateChartData(currentStock.price, timeframe);
+    
+    // Convert all prices to INR
+    const convertedData = rawData.map(point => ({
+      ...point,
+      price: convertCurrency(
+        point.price, 
+        currentStock.currency || 'USD', 
+        'INR'
+      ),
+      originalPrice: point.price, // Keep the original price for reference
+      originalCurrency: currentStock.currency || 'USD'
+    }));
+    
+    setData(convertedData);
+  }, [timeframe, currentStock.price, currentStock.symbol, currentStock.currency]);
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -42,10 +57,10 @@ const StockChart = ({ timeframe }: StockChartProps) => {
           axisLine={false} 
           tickLine={false} 
           tickMargin={10}
-          tickFormatter={(value) => `$${value}`}
+          tickFormatter={(value) => `₹${value.toFixed(0)}`}
         />
         <Tooltip 
-          formatter={(value: number) => [`$${value.toFixed(2)}`, 'Price']}
+          formatter={(value: number) => [formatCurrency(value, 'INR'), 'Price']}
           labelFormatter={(label) => `Time: ${label}`}
         />
         <Area 

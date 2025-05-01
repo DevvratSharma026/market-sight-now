@@ -6,9 +6,24 @@ import PredictionCard from './PredictionCard';
 import TopMovers from './TopMovers';
 import { useStockData } from '@/hooks/useStockData';
 import { Star } from 'lucide-react';
+import { convertCurrency, formatCurrency } from '@/utils/currencyConverter';
 
 const MainDashboard = () => {
   const { currentStock, addToWatchlist, removeFromWatchlist, isInWatchlist } = useStockData();
+  
+  // Convert price to INR
+  const priceInINR = convertCurrency(
+    parseFloat(currentStock.price), 
+    currentStock.currency || 'USD', 
+    'INR'
+  );
+  
+  // Convert change to INR
+  const changeInINR = convertCurrency(
+    parseFloat(currentStock.change), 
+    currentStock.currency || 'USD', 
+    'INR'
+  );
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -31,12 +46,15 @@ const MainDashboard = () => {
                 <div className="flex items-center gap-4">
                   <div className="text-right">
                     <div className="text-2xl font-bold">
-                      {currentStock.currency || '$'}{currentStock.price}
+                      {formatCurrency(priceInINR, 'INR')}
+                      <span className="text-xs ml-1 text-slate-500">
+                        ({currentStock.currency || '$'}{currentStock.price})
+                      </span>
                     </div>
                     <div className={currentStock.change.startsWith('-') 
                       ? "text-red-500" 
                       : "text-green-500"}>
-                      {currentStock.change} ({currentStock.changePercent})
+                      {formatCurrency(changeInINR, 'INR')} ({currentStock.changePercent})
                     </div>
                   </div>
                   <button
