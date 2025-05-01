@@ -1,19 +1,21 @@
+
 import { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useStockData } from '@/hooks/useStockData';
+import { generateChartData } from '@/utils/stockDataUtils';
 
 interface StockChartProps {
   timeframe: string;
 }
 
 const StockChart = ({ timeframe }: StockChartProps) => {
-  const { currentStock, chartData } = useStockData();
+  const { currentStock } = useStockData();
   const [data, setData] = useState<any[]>([]);
   
-  // Simulate data based on timeframe
+  // Generate chart data based on timeframe
   useEffect(() => {
-    setData(chartData);
-  }, [timeframe, chartData]);
+    setData(generateChartData(currentStock.price, timeframe));
+  }, [timeframe, currentStock.price, currentStock.symbol]);
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -33,12 +35,7 @@ const StockChart = ({ timeframe }: StockChartProps) => {
           axisLine={false} 
           tickLine={false} 
           tickMargin={10}
-          tickFormatter={(value) => {
-            if (timeframe === '1D') {
-              return value.toString();
-            }
-            return value.toString();
-          }}
+          tickFormatter={(value) => value.toString()}
         />
         <YAxis 
           domain={['dataMin - 5', 'dataMax + 5']}

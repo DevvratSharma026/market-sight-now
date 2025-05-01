@@ -12,9 +12,11 @@ const StockUpdater = () => {
     // Function to update stock prices
     const updateStocks = async () => {
       try {
+        console.log("Updating stock prices...");
         const response = await supabase.functions.invoke('update-stock-prices');
         
         if (response.error) {
+          console.error('Error from edge function:', response.error);
           // Check if it's an API key error
           if (response.error.message && response.error.message.includes('Alpha Vantage API key')) {
             if (!apiKeyError) {
