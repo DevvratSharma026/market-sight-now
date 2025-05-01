@@ -25,7 +25,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Link to="/dashboard" className="text-xl font-bold text-primary mr-6">StockWatch</Link>
+            <Link to="/dashboard" className="text-xl font-bold text-primary mr-6">Market Insight</Link>
             <div className="hidden md:flex space-x-4">
               <Link to="/dashboard" className="text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary">Dashboard</Link>
               <Link to="/watchlist" className="text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary">Watchlist</Link>
