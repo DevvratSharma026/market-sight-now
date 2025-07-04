@@ -44,13 +44,17 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   useEffect(() => {
     const fetchStocks = async () => {
       try {
+        console.log('Fetching stocks from Supabase...');
         const { data, error } = await supabase
           .from('stock_data')
           .select('*');
         
         if (error) {
+          console.error('Error fetching stocks:', error);
           throw error;
         }
+        
+        console.log('Raw data from Supabase:', data);
         
         if (data) {
           // Transform data to match our Stock interface
@@ -64,6 +68,7 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             last_updated: stock.last_updated
           }));
           
+          console.log('Formatted stock data:', formattedData);
           setStocks(formattedData);
           
           // Set current stock to first stock if not set
