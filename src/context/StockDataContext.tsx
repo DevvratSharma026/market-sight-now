@@ -140,7 +140,7 @@ export const StockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [currentStock.symbol]);
+  }, []); // Remove dependency on currentStock.symbol to allow stocks to load independently
 
   const searchStock = (symbol: string) => {
     const upperSymbol = symbol.toUpperCase();

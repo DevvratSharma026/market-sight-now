@@ -9,6 +9,98 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      integration_messages: {
+        Row: {
+          author: string | null
+          channel_or_thread: string | null
+          content: string | null
+          external_id: string
+          external_url: string | null
+          id: string
+          integration_id: string
+          message_timestamp: string | null
+          message_type: string
+          metadata: Json | null
+          processed_at: string | null
+          title: string | null
+        }
+        Insert: {
+          author?: string | null
+          channel_or_thread?: string | null
+          content?: string | null
+          external_id: string
+          external_url?: string | null
+          id?: string
+          integration_id: string
+          message_timestamp?: string | null
+          message_type: string
+          metadata?: Json | null
+          processed_at?: string | null
+          title?: string | null
+        }
+        Update: {
+          author?: string | null
+          channel_or_thread?: string | null
+          content?: string | null
+          external_id?: string
+          external_url?: string | null
+          id?: string
+          integration_id?: string
+          message_timestamp?: string | null
+          message_type?: string
+          metadata?: Json | null
+          processed_at?: string | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_messages_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "user_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      oauth_configs: {
+        Row: {
+          authorization_url: string
+          client_id: string
+          client_secret: string | null
+          created_at: string | null
+          id: string
+          integration_type: Database["public"]["Enums"]["integration_type"]
+          redirect_uri: string
+          scope: string
+          token_url: string
+          updated_at: string | null
+        }
+        Insert: {
+          authorization_url: string
+          client_id: string
+          client_secret?: string | null
+          created_at?: string | null
+          id?: string
+          integration_type: Database["public"]["Enums"]["integration_type"]
+          redirect_uri: string
+          scope: string
+          token_url: string
+          updated_at?: string | null
+        }
+        Update: {
+          authorization_url?: string
+          client_id?: string
+          client_secret?: string | null
+          created_at?: string | null
+          id?: string
+          integration_type?: Database["public"]["Enums"]["integration_type"]
+          redirect_uri?: string
+          scope?: string
+          token_url?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       stock_data: {
         Row: {
           change: number
@@ -39,6 +131,104 @@ export type Database = {
         }
         Relationships: []
       }
+      sync_logs: {
+        Row: {
+          completed_at: string | null
+          error_message: string | null
+          id: string
+          integration_id: string
+          items_processed: number | null
+          started_at: string | null
+          status: string
+          sync_metadata: Json | null
+          sync_type: string
+        }
+        Insert: {
+          completed_at?: string | null
+          error_message?: string | null
+          id?: string
+          integration_id: string
+          items_processed?: number | null
+          started_at?: string | null
+          status: string
+          sync_metadata?: Json | null
+          sync_type: string
+        }
+        Update: {
+          completed_at?: string | null
+          error_message?: string | null
+          id?: string
+          integration_id?: string
+          items_processed?: number | null
+          started_at?: string | null
+          status?: string
+          sync_metadata?: Json | null
+          sync_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sync_logs_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "user_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_integrations: {
+        Row: {
+          access_token: string | null
+          created_at: string | null
+          id: string
+          integration_settings: Json | null
+          integration_type: Database["public"]["Enums"]["integration_type"]
+          last_sync_at: string | null
+          oauth_code_verifier: string | null
+          oauth_redirect_uri: string | null
+          oauth_state: string | null
+          refresh_token: string | null
+          status: Database["public"]["Enums"]["integration_status"] | null
+          token_expires_at: string | null
+          updated_at: string | null
+          user_id: string
+          workspace_info: Json | null
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string | null
+          id?: string
+          integration_settings?: Json | null
+          integration_type: Database["public"]["Enums"]["integration_type"]
+          last_sync_at?: string | null
+          oauth_code_verifier?: string | null
+          oauth_redirect_uri?: string | null
+          oauth_state?: string | null
+          refresh_token?: string | null
+          status?: Database["public"]["Enums"]["integration_status"] | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id: string
+          workspace_info?: Json | null
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string | null
+          id?: string
+          integration_settings?: Json | null
+          integration_type?: Database["public"]["Enums"]["integration_type"]
+          last_sync_at?: string | null
+          oauth_code_verifier?: string | null
+          oauth_redirect_uri?: string | null
+          oauth_state?: string | null
+          refresh_token?: string | null
+          status?: Database["public"]["Enums"]["integration_status"] | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+          workspace_info?: Json | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -47,7 +237,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      integration_status: "active" | "pending" | "error" | "disconnected"
+      integration_type: "slack" | "gmail" | "jira"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -162,6 +353,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      integration_status: ["active", "pending", "error", "disconnected"],
+      integration_type: ["slack", "gmail", "jira"],
+    },
   },
 } as const
